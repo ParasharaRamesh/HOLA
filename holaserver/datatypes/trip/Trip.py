@@ -3,10 +3,10 @@ import enum
 import sys
 curr_path=os.path.dirname(__file__)
 # print("currpath is ",curr_path)
-lib_path = os.path.abspath(os.path.join(curr_path, '..','location'))
-print("in trip lib path is ",lib_path)
+lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
+# print("in trip lib path is ",lib_path)
 sys.path.append(lib_path)
-import GeoLocation
+from datatypes.location.GeoLocation import GeoLocation
 
 
 
@@ -28,18 +28,20 @@ class Trip:
         self._tripId=tripId#string
         self._carId=carId#string
         self._driverId=driverId#string
-        if isinstance(sourceLocation,GeoLocation.GeoLocation) == True:
+        # print("srcLoc",type(sourceLocation),isinstance(sourceLocation,GeoLocation.GeoLocation))
+        if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
 
-        if isinstance(destinationLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(destinationLocation,GeoLocation) == True:
             self._destinationLocation=destinationLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
 
         self._startTimeInEpochs=startTimeInEpochs#Long
         self._endTimeInEpochs=endTimeInEpochs#Long
+
         if type(tripPrice)==float:
             self._tripPrice=tripPrice#float
         else:
@@ -49,13 +51,13 @@ class Trip:
             Exception("tripStatus must be an integer between 1-5")
         if tripStatus<1 or tripStatus>5:
             Exception("tripStatus must be between 1 and 5")
-        self._tripStatus=str(TripStatus(tripStatus))[12:]
+        self._tripStatus=str(TripStatus(tripStatus))[11:]
 
         if type(paymentMode)!=int:
             Exception("paymentMode must be an integer between 1-4")
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
-        self._paymentMode=str(PaymentMode(paymentMode))[13:]
+        self._paymentMode=str(PaymentMode(paymentMode))[12:]
 
     #getters and setters
     @property
@@ -88,7 +90,7 @@ class Trip:
 
     @sourceLocation.setter
     def sourceLocation(self,sourceLocation):
-        if isinstance(sourceLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
@@ -99,7 +101,7 @@ class Trip:
 
     @destinationLocation.setter
     def destinationLocation(self,destinationLocation):
-        if isinstance(destinationLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(destinationLocation,GeoLocation) == True:
             self._destinationLocation=destinationLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
@@ -141,7 +143,7 @@ class Trip:
             Exception("tripStatus must be an integer between 1-5")
         if tripStatus<1 or tripStatus>5:
             Exception("tripStatus must be between 1 and 5")
-        self._tripStatus=str(TripStatus(tripStatus))[12:]
+        self._tripStatus=str(TripStatus(tripStatus))[11:]
     
     @property
     def paymentMode(self):
@@ -153,4 +155,4 @@ class Trip:
             Exception("paymentMode must be an integer between 1-4")
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
-        self._paymentMode=str(PaymentMode(paymentMode))[13:]
+        self._paymentMode=str(PaymentMode(paymentMode))[12:]

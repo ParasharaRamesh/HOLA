@@ -3,12 +3,12 @@ import enum
 import sys
 curr_path=os.path.dirname(__file__)
 # print("currpath is ",curr_path)
-lib_path = os.path.abspath(os.path.join(curr_path, '..','location'))
-print("in trip lib path is ",lib_path)
+lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
+# print("in trip lib path is ",lib_path)
 sys.path.append(lib_path)
-import GeoLocation
+from datatypes.location.GeoLocation import GeoLocation
 lib_path = os.path.abspath(os.path.join(curr_path, '..','car'))
-print("in trip lib path is ",lib_path)
+# print("in trip lib path is ",lib_path)
 sys.path.append(lib_path)
 import Car
 
@@ -25,12 +25,12 @@ class ScheduleTripTransactionInput:
         else:
             Exception("tripPrice rvalue must be a float type!")
 
-        if isinstance(sourceLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
 
-        if isinstance(destinationLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(destinationLocation,GeoLocation) == True:
             self._destinationLocation=destinationLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
@@ -66,7 +66,7 @@ class ScheduleTripTransactionInput:
 
     @sourceLocation.setter
     def sourceLocation(self,sourceLocation):
-        if isinstance(sourceLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
@@ -77,7 +77,7 @@ class ScheduleTripTransactionInput:
 
     @destinationLocation.setter
     def destinationLocation(self,destinationLocation):
-        if isinstance(destinationLocation,GeoLocation.GeoLocation) == True:
+        if isinstance(destinationLocation,GeoLocation) == True:
             self._destinationLocation=destinationLocation
         else:
             Exception('The rvalue is of not of geolocation type!')
