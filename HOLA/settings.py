@@ -37,13 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     #our apps have been added below
-    'rest-service.cardetails',
-    'rest-service.carsinlocation',
-    'rest-service.carstatus',
-    'rest-service.completetrip',
-    'rest-service.scheduletrip',
-    'rest-service.fareestimates',
+    'holaserver',
 ]
 
 MIDDLEWARE = [

@@ -17,9 +17,10 @@ from django.contrib import admin
 from django.urls import path,include
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cardetails/',include('rest-service.cardetails.urls')),
+    # path('server/',include('rest-service.cardetails.urls')),
     # path('carsinlocation/',include('rest-service.carsinlocation.urls')),
     # path('carstatus/',include('rest-service.carstatus.urls')),
     # path('completetrip/',include('rest-service.completetrip.urls')),
