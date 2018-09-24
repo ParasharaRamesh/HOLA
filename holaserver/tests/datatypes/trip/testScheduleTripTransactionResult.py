@@ -28,16 +28,15 @@ from serializers.trip.ScheduleTripTransactionResultSerializer import ScheduleTri
 # scheduleTripTransactionStatus,trip
 class ScheduleTripTransactionResultTestCase(TestCase):
     def testScheduleTripTransactionResultSerialization(self):
-        expectedJSON="{\"scheduleTripTransactionStatus\": \"UNKNOWN\", \"trip\": {\"tripId\": \"TRIP_ID_1\", \"carId\": \"CAR_ID_1\", \"driverId\": \"DRIVER_ID_1\", \
+        expectedJSON="{\"scheduleTripTransactionStatus\": \"UNKNOWN\", \"trip\": {\"tripId\": \"TRIP_ID_1\", \"carId\": \"CAR_ID_1\", \"driverId\": \"DRIVER_ID_1\", \"customerId\": \"CUSTOMER_ID_1\", \
 \"sourceLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"destinationLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \
 \"startTimeInEpochs\": 123123, \"endTimeInEpochs\": 423234, \"tripPrice\": 123.13, \
-\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\"}}"
+\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\", \"rating\": 1.2, \"feedback\": \"great driver!\"}}"
 
         sourceLocation = GeoLocation(123.1,234.1)
         destinationLocation = GeoLocation(123.1,234.1)
 
-        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4)
-
+        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4,1.2,"great driver!")
         scheduletripres=ScheduleTripTransactionResult(1,trip)
         # completetripres.completeTripTransactionStatus=1
         # completetripres.trip=trip
@@ -54,10 +53,10 @@ class ScheduleTripTransactionResultTestCase(TestCase):
             assert False
 
     def testScheduleTripTransactionResultDeSerialization(self):
-        inputJSONdict={'scheduleTripTransactionStatus':'UNKNOWN','trip':{'tripId': 'TRIP_ID_1', 'carId': 'CAR_ID_1', 'driverId':'DRIVER_ID_1',\
+        inputJSONdict={'scheduleTripTransactionStatus':'UNKNOWN','trip':{'tripId': 'TRIP_ID_1', 'carId': 'CAR_ID_1', 'driverId':'DRIVER_ID_1', 'customerId':'CUSTOMER_ID_1',\
                         'sourceLocation':{'latitude':123.1,'longitude':234.1},'destinationLocation':{'latitude':123.1,'longitude':234.1},\
                         'startTimeInEpochs':123123,'endTimeInEpochs':423234,'tripPrice':123.13,\
-                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT'\
+                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT','rating':1.2 , 'feedback':'great driver!'\
                         }}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)
