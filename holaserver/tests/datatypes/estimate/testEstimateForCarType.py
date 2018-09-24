@@ -25,8 +25,8 @@ from serializers.estimate.EstimateForCarTypeSerializer import EstimateForCarType
 
 class EstimateForCarTypeTestCase(TestCase):
     def testEstimateForCarTypeSerialization(self):
-        expectedJSON="{\'carType\': \'CAR_TYPE_HATCHBACK\', \'tripPrice\': 129.0}"
-        estimate=EstimateForCarType(2,129.0)
+        expectedJSON="{\'carType\': \'CAR_TYPE_HATCHBACK\', \'tripPrice\': 129.0, \'discountTripPrice\': 90.0}"
+        estimate=EstimateForCarType(2,129.0,90.0)
         serializer = EstimateForCarTypeSerializer(estimate)
         serialisedJSON=str(serializer.data)
         if jsoncompare.are_same(expectedJSON, serialisedJSON)[0]:
@@ -37,7 +37,7 @@ class EstimateForCarTypeTestCase(TestCase):
             assert False
 
     def testEstimateForCarTypeDeSerialization(self):
-        inputJSONdict={'carType': 'CAR_TYPE_HATCHBACK','tripPrice':129.2}
+        inputJSONdict={'carType': 'CAR_TYPE_HATCHBACK','tripPrice':129.2 ,'discountTripPrice':89.5}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)
         stream=BytesIO(inputJSONcontent)

@@ -8,9 +8,10 @@ sys.path.append(lib_path)
 from Car import CarType
 
 class EstimateForCarType:
-    def __init__(self,carType,tripPrice):
+    def __init__(self,carType,tripPrice,discountTripPrice):
         self._carType=str(CarType(carType))[8:]#None#car.Cartype,enum
         self._tripPrice=tripPrice#None#float
+        self._discountTripPrice=discountTripPrice
     
     def __str__(self):
         '''{"carType":"CAR_TYPE_HATCHBACK","tripPrice": 129.00}'''
@@ -39,3 +40,14 @@ class EstimateForCarType:
             self._tripPrice = tripPrice
         else:
             Exception("trip Price rvalue must be of type float")
+
+    @property
+    def discountTripPrice(self):
+        return self._discountTripPrice
+
+    @discountTripPrice.setter
+    def discountTripPrice(self,discountTripPrice):
+        if type(discountTripPrice)==float:
+            self._discountTripPrice= discountTripPrice
+        else:
+            Exception("discountTripPrice rvalue must be of type float")
