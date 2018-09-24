@@ -1,2 +1,2 @@
 # HOLA-
-you know what it is!
+This repository contains an implementation of a mock ride sharing app written in Django

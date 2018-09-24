@@ -24,10 +24,11 @@ class TripStatus(enum.Enum):
     TRIP_STATUS_CANCELLED=5
 
 class Trip:
-    def __init__(self,tripId,carId,driverId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode):
+    def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode):
         self._tripId=tripId#string
         self._carId=carId#string
         self._driverId=driverId#string
+        self._customerId=customerId#string
         # print("srcLoc",type(sourceLocation),isinstance(sourceLocation,GeoLocation.GeoLocation))
         if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
@@ -83,6 +84,15 @@ class Trip:
     @driverId.setter
     def driverId(self,driverId):
         self._driverId=driverId
+
+    @property
+    def customerId(self):
+        return self._customerId
+
+    @customerId.setter
+    def customerId(self,customerId):
+        self._customerId=customerId
+
 
     @property
     def sourceLocation(self):

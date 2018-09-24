@@ -7,12 +7,13 @@ sys.path.append(lib_path)
 from GeoLocationSerializer import GeoLocationSerializer
 
 
-# tripId,carId,driverId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode
+
 
 class TripSerializer(serializers.Serializer):
     tripId = serializers.CharField(max_length=100)
     carId = serializers.CharField(max_length=100)
     driverId = serializers.CharField(max_length=100)
+    customerId = serializers.CharField(max_length=100)
     sourceLocation = GeoLocationSerializer()
     destinationLocation = GeoLocationSerializer()
     startTimeInEpochs = serializers.IntegerField()
