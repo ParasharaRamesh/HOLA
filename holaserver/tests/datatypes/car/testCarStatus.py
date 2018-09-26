@@ -31,9 +31,9 @@ from copy import deepcopy
 
 class CarStatusTestCase(TestCase):
     def testCarStatusSerialization(self):
-        expectedJSON="{\"geoLocation\": {\"latitude\": 12.91, \"longitude\": 45.92}, \"carAvailability\": \"CAR_OFF_DUTY\"}"
+        expectedJSON="{\"carId\": \"CAR_ID_1\", \"geoLocation\": {\"latitude\": 12.91, \"longitude\": 45.92}, \"carAvailability\": \"CAR_OFF_DUTY\"}"
         geoLocation=GeoLocation(12.91,45.92)
-        carStatus=CarStatus(geoLocation,2)
+        carStatus=CarStatus("CAR_ID_1",geoLocation,2)
         # carStatus.geoLocation=geoLocation
         # carStatus.carAvailability=2
         serializer = CarStatusSerializer(carStatus)
@@ -49,7 +49,7 @@ class CarStatusTestCase(TestCase):
             assert False
 
     def testCarStatusDeSerialization(self):
-        inputJSONdict={"geoLocation":{"latitude":12.23,"longitude":23.22},"carAvailability": "CAR_OFF_DUTY"}
+        inputJSONdict={"carId":"CAR_ID_1" ,"geoLocation":{"latitude":12.23,"longitude":23.22},"carAvailability": "CAR_OFF_DUTY"}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)
         stream=BytesIO(inputJSONcontent)

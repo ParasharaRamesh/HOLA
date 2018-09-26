@@ -19,7 +19,8 @@ class CarAvailabilityStatus(enum.Enum):
     CAR_ON_TRIP_CLOSE_TO_COMPLETION=5
 
 class CarStatus:
-    def __init__(self,geoLocation,carAvailability):
+    def __init__(self,carId,geoLocation,carAvailability):
+        self._carId =carId
         if isinstance(geoLocation,GeoLocation.GeoLocation) == True:
             self._geoLocation=geoLocation
         else:
@@ -37,6 +38,16 @@ class CarStatus:
     #    return "geoLocation:"+self.geoLocation+",carAvailability:"+self.carAvailability
 
     #getters and setters
+    @property
+    def carId(self):
+        return self._carId
+
+    @carId.setter
+    def carId(self,carId):
+        self._carId=carId
+
+
+
     @property
     def carAvailability(self):
         return self._carAvailability

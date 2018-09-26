@@ -31,12 +31,12 @@ class ScheduleTripTransactionResultTestCase(TestCase):
         expectedJSON="{\"scheduleTripTransactionStatus\": \"UNKNOWN\", \"trip\": {\"tripId\": \"TRIP_ID_1\", \"carId\": \"CAR_ID_1\", \"driverId\": \"DRIVER_ID_1\", \"customerId\": \"CUSTOMER_ID_1\", \
 \"sourceLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"destinationLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \
 \"startTimeInEpochs\": 123123, \"endTimeInEpochs\": 423234, \"tripPrice\": 123.13, \
-\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\", \"rating\": 1.2, \"feedback\": \"great driver!\"}}"
+\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\"}}"
 
         sourceLocation = GeoLocation(123.1,234.1)
         destinationLocation = GeoLocation(123.1,234.1)
 
-        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4,1.2,"great driver!")
+        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4)
         scheduletripres=ScheduleTripTransactionResult(1,trip)
         # completetripres.completeTripTransactionStatus=1
         # completetripres.trip=trip
@@ -56,7 +56,7 @@ class ScheduleTripTransactionResultTestCase(TestCase):
         inputJSONdict={'scheduleTripTransactionStatus':'UNKNOWN','trip':{'tripId': 'TRIP_ID_1', 'carId': 'CAR_ID_1', 'driverId':'DRIVER_ID_1', 'customerId':'CUSTOMER_ID_1',\
                         'sourceLocation':{'latitude':123.1,'longitude':234.1},'destinationLocation':{'latitude':123.1,'longitude':234.1},\
                         'startTimeInEpochs':123123,'endTimeInEpochs':423234,'tripPrice':123.13,\
-                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT','rating':1.2 , 'feedback':'great driver!'\
+                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT'\
                         }}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)

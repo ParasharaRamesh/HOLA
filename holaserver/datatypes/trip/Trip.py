@@ -24,7 +24,7 @@ class TripStatus(enum.Enum):
     TRIP_STATUS_CANCELLED=5
 
 class Trip:
-    def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode,rating,feedback):
+    def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode):
         self._tripId=tripId#string
         self._carId=carId#string
         self._driverId=driverId#string
@@ -59,16 +59,6 @@ class Trip:
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
-
-        if type(rating)==float:
-            if rating>=0.0 and rating <=5.0:
-                self._rating=rating
-            else:
-                Exception("rating for the trip is not within 1.0 and 5.0")
-        else:
-            Exception("rating is not of type Float")
-
-        self._feedback=feedback
 
     #getters and setters
     @property
@@ -177,24 +167,4 @@ class Trip:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
 
-    @property
-    def rating(self):
-        return self._rating
-    
-    @rating.setter
-    def rating(self,rating):
-        if type(rating)==float:
-            if rating>=0.0 and rating <=5.0:
-                self._rating=rating
-            else:
-                Exception("rating for the trip is not within 1.0 and 5.0")
-        else:
-            Exception("rating is not of type Float")
-
-    @property
-    def feedback(self):
-        return self._feedback
-
-    @feedback.setter
-    def feedback(self,feedback):
-        self._feedback=feedback
+ 

@@ -1,5 +1,4 @@
-from django.db import models
-class Customer(models.Model):
+class Customer():
     def __init__(self,customerId,name,email,phone,pastSevenDaysRideCount=0):
         self._customerId=customerId
         self._name=name

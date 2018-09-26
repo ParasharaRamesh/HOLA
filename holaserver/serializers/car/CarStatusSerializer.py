@@ -15,6 +15,7 @@ from GeoLocationSerializer import GeoLocationSerializer
 
 
 class CarStatusSerializer(serializers.Serializer):
+    carId = serializers.CharField(max_length=100)
     geoLocation = GeoLocationSerializer()
     carAvailability = serializers.CharField(max_length=100)
 
