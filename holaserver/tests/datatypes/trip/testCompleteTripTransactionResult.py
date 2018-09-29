@@ -41,6 +41,7 @@ class CompleteTripTransactionResultTestCase(TestCase):
         completetripres=CompleteTripTransactionResult(1,trip)
         # completetripres.completeTripTransactionStatus=1
         # completetripres.trip=trip
+        print("completetripres",str(completetripres))
 
         serializer = CompleteTripTransactionResultSerializer(completetripres)
         serialisedJSON=json.dumps(serializer.data)

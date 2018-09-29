@@ -29,6 +29,7 @@ class GeoLocationTestCase(TestCase):
     def testGeoLocationSerialization(self):
         expectedJSON="{\'latitude\': 121.2, \'longitude\': 22.2}"
         geoLocation=GeoLocation(121.2,22.2)
+        print("geolocation",str(geoLocation))
         serializer = GeoLocationSerializer(geoLocation)
         serialisedJSON = str(serializer.data)
 

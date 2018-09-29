@@ -9,11 +9,8 @@ class CarDriver:
         self._feedbacks=[feedback]#List(string),his top5 best feedback , maybe feedback could be another class in itself not sure!
 
 
-    #debug function 
-    #support later
     def __str__(self):
-        '''{"driverId":"driver_id_1","name":"MANJUNATH","phone":"9898712312","rating":4.3,"feedbacks":["great driver!,"I feel very safe with him driving"]}'''
-        # return "driverId:"+self.driverId+",name:"+self.name+",phone:"+self.phone+",rating:"+self.rating+",feedbacks:"+self.feedbacks
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
 
     #Getters and Setters 
     @property

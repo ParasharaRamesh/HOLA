@@ -10,10 +10,8 @@ class GeoLocation:
         else:
             raise Exception("Incorrect type for longitude must be float")
 
-    #debug function could be done later!
     def __str__(self):
-        '''{"latitude":12312.123,"longitude":12341234.2}'''
-        #return {"latitude":self.latitude, "longitude":self.longitude}
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
 
     #getters and setters
     @property

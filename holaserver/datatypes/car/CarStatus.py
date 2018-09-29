@@ -32,10 +32,8 @@ class CarStatus:
             Exception("caravailability must be between 1 and 5")
         self._carAvailability=str(CarAvailabilityStatus(carAvailability))[22:]
 
-    #serialization function
     def __str__(self):
-        '''{"geoLocation":{"latitude":12312.123,"longitude":12341234.2},"carAvailability":"CAR_AVAILABLE"}'''
-    #    return "geoLocation:"+self.geoLocation+",carAvailability:"+self.carAvailability
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
 
     #getters and setters
     @property

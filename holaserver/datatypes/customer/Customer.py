@@ -5,6 +5,10 @@ class Customer():
         self._email=email
         self._phone=phone
         self._pastSevenDaysRideCount=pastSevenDaysRideCount
+        
+    def __str__(self):
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
+
 
     #getters and setters
     @property

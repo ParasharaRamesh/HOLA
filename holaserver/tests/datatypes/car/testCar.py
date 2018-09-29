@@ -31,6 +31,7 @@ class CarTestCase(TestCase):
     def testCarSerialization(self):
         expectedJSON="{\'carId\': \'CAR_ID_1\', \'carType\': \'CAR_TYPE_HATCHBACK\', \'carModel\': \'TOYOTA ETIOS\', \'carLicense\': \'KA03 3122\'}"
         car=Car("CAR_ID_1",2,"TOYOTA ETIOS","KA03 3122")
+        print("Car",str(car))
         # car.carId="CAR_ID_1"
         # car.carType=2
         # car.carModel="TOYOTA ETIOS"

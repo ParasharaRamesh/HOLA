@@ -35,6 +35,7 @@ class TripTestCase(TestCase):
         sourceLocation = GeoLocation(123.1,234.1)
         destinationLocation = GeoLocation(123.1,234.1)
         trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4)
+        print("trip",str(trip))
         serializer = TripSerializer(trip)
         serialisedJSON=json.dumps(serializer.data)
         # serialisedJSON=str(serializer.data)

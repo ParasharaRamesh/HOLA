@@ -60,6 +60,9 @@ class Trip:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
 
+    def __str__(self):
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
+
     #getters and setters
     @property
     def tripId(self):

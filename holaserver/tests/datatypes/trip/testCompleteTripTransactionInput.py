@@ -31,6 +31,7 @@ class CompleteTripTransactionInputTestCase(TestCase):
         expectedJSON="{\"tripId\": \"TRIP_ID_1\", \"finishLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"paymentMode\": \"PAYTM_PAYMENT\"}"#4
         finishLocation = GeoLocation(123.1,234.1)
         completetripinp=CompleteTripTransactionInput("TRIP_ID_1",finishLocation,4)
+        print("completetripinp",str(completetripinp))
         serializer = CompleteTripTransactionInputSerializer(completetripinp)
         serialisedJSON=json.dumps(serializer.data)
         # serialisedJSON=str(serializer.data)

@@ -27,6 +27,7 @@ class EstimateForCarTypeTestCase(TestCase):
     def testEstimateForCarTypeSerialization(self):
         expectedJSON="{\'carType\': \'CAR_TYPE_HATCHBACK\', \'tripPrice\': 129.0, \'discountTripPrice\': 90.0}"
         estimate=EstimateForCarType(2,129.0,90.0)
+        print("estimate",str(estimate))
         serializer = EstimateForCarTypeSerializer(estimate)
         serialisedJSON=str(serializer.data)
         if jsoncompare.are_same(expectedJSON, serialisedJSON)[0]:

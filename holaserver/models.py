@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils import Choices
 import os,sys
 # import CarType
 curr_path=os.path.dirname(__file__)
@@ -83,8 +84,8 @@ class CustomerTable(models.Model):
     pastSevenDaysRideCount=models.IntegerField()
 
 class CarDetailsTable(models.Model):
-    carAvailability=models.CharField(max_length=100,choices=[(tag,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
-    carType=models.CharField(max_length=100,choices=[(tag,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
+    carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
+    carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
     geoLocation = GeoLocationField()
 
 class DriverDetailsTable(models.Model):

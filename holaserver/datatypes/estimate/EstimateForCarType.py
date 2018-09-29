@@ -14,8 +14,7 @@ class EstimateForCarType:
         self._discountTripPrice=discountTripPrice
     
     def __str__(self):
-        '''{"carType":"CAR_TYPE_HATCHBACK","tripPrice": 129.00}'''
-        # return {"carType":self.carType,"tripPrice":self.tripPrice}
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
     
     #getters and setters
     @property

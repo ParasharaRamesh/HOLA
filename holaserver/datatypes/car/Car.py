@@ -21,10 +21,8 @@ class Car():
         self._carModel=carModel#String
         self._carLicense=carLicense#String
 
-    #support this later for debug purposes
     def __str__(self):
-        '''{"carId":"car_id_1","carType":"CAR_TYPE_HATCKBACK","carModel":"TOYATA","carLicense":"KA03 3122"}'''
-        # return "carId:"+self.carId+",carType:"+self.carType+",carModel:"+self.carModel+",carLicense:"+self.carLicense"
+        return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
  
 
     #Getters and Setters 

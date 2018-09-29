@@ -34,6 +34,8 @@ class CarStatusTestCase(TestCase):
         expectedJSON="{\"carId\": \"CAR_ID_1\", \"geoLocation\": {\"latitude\": 12.91, \"longitude\": 45.92}, \"carAvailability\": \"CAR_OFF_DUTY\"}"
         geoLocation=GeoLocation(12.91,45.92)
         carStatus=CarStatus("CAR_ID_1",geoLocation,2)
+        print("carstatus",str(carStatus))
+        # print(str(carStatus))
         # carStatus.geoLocation=geoLocation
         # carStatus.carAvailability=2
         serializer = CarStatusSerializer(carStatus)

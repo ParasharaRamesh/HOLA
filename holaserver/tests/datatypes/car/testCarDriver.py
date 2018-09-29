@@ -28,6 +28,7 @@ class CarDriverTestCase(TestCase):
     def testCarDriverSerialization(self):
         expectedJSON="{\'driverId\': \'driver_id_11\', \'name\': \'MANJUNATH\', \'phone\': \'9898712312\', \'rating\': 3.0, \'feedbacks\': [\'Great driver!\']}"
         carDriver=CarDriver("driver_id_11","MANJUNATH","9898712312","Great driver!")
+        print("Cardriver",str(carDriver))
         # carDriver.driverId="driver_id_11"
         # carDriver.name="MANJUNATH"
         # carDriver.phone="9898712312"

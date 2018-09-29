@@ -28,6 +28,7 @@ class CustomerTestCase(TestCase):
     def testCarSerialization(self):
         expectedJSON="{\'customerId\': \'CUSTOMER_ID_1\', \'name\': \'Aparajit\', \'email\': \'apla@gmail.com\', \'phone\': \'9341217838\', 'pastSevenDaysRideCount': 0}"
         customer=Customer("CUSTOMER_ID_1","Aparajit","apla@gmail.com","9341217838")
+        print("customer",str(customer))
         serializer = CustomerSerializer(customer)
         serialisedJSON=str(serializer.data)
         if jsoncompare.are_same(expectedJSON, serialisedJSON)[0]:

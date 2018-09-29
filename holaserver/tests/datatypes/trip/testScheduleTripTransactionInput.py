@@ -34,6 +34,7 @@ class ScheduleTripTransactionInputTestCase(TestCase):
         sourceLocation = GeoLocation(123.1,234.1)
         destinationLocation = GeoLocation(123.1,234.1)
         scheduletripinp=ScheduleTripTransactionInput(5,123.13,sourceLocation,destinationLocation)
+        print("sccheduletripinp",str(scheduletripinp))
         serializer = ScheduleTripTransactionInputSerializer(scheduletripinp)
         serialisedJSON=json.dumps(serializer.data)
         # serialisedJSON=str(serializer.data)
