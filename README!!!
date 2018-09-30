@@ -1,0 +1,28 @@
+All the Datatypes are in the folder holaserver.datatypes
+All the models/tables are in the models.py folder
+
+
+
+To run test cases use the command:
+    python manage.py test path.to.testClass
+
+If making changes to the models.py then:
+    make sure to add new tables in the admin.py file
+    python manage.py makemigrations holaserver
+    python manage.py migrate
+    then test CRUD using the admin gui:
+        1.runserver and go to localhost:port/admin
+        2.test the CRUD on all tables
+        3.then do python manage.py flush to remove all the temporary instances created
+
+If making changes to datatypes then:
+    make sure to update/create a corresponding serializer class as well in the serializers folder
+    make sure to write a test case in the tests.datatypes folder and run all the tests by saying
+        python manage.py test tests.datatypes
+
+To run server
+    python manage.py runserver
+
+To createsuperuser
+    python manage.py createsuperuser
+
