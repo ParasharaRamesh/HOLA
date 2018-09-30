@@ -3,18 +3,14 @@ from model_utils import Choices
 import os,sys
 # import CarType
 curr_path=os.path.dirname(__file__)
-lib_path = os.path.abspath(os.path.join(curr_path,'datatypes','car'))
+lib_path = os.path.abspath(os.path.join(curr_path,'datatypes'))
 sys.path.append(lib_path)
-from Car import CarType
-from CarStatus import CarAvailabilityStatus
-from GeoLocation import GeoLocation
-# from datatypes.car.CarStatus import CarAvailabilityStatus
-# import Car.CarAvailabilityStatus
-# from datatypes.location import GeoLocation
-# import Geolocation.GeoLocation
+# print("in models",lib_path)
+from car.Car import CarType
+from car.CarStatus import CarAvailabilityStatus
+from location.GeoLocation import GeoLocation
+from trip.Trip import Trip,TripStatus,PaymentMode
 
-# print("CAR AVAILABILITY",[(tag,tag.value) for tag in CarAvailabilityStatus])
-# print("car type",[(tag,tag.value) for tag in CarType])
 #custom fields
 class GeoLocationField(models.Field):
     description = "A latitude,longitude pair"
@@ -75,19 +71,58 @@ class GeoLocationField(models.Field):
         # value = self._get_val_from_obj(obj)
         return self.get_prep_value(obj)
 
-
-# Create your models here.
+# models are defined below
 class CustomerTable(models.Model):
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)
     email=models.EmailField()
-    pastSevenDaysRideCount=models.IntegerField()
+    pastSevenDaysRideCount=models.PositiveIntegerField()
+    
+    class Meta:
+        verbose_name_plural = "CustomerTable"
 
-class CarDetailsTable(models.Model):
-    carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
+class CarStatusTable(models.Model):
     carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
+    carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
     geoLocation = GeoLocationField()
 
+    class Meta:
+        verbose_name_plural = "CarStatusTable"
+
+
 class DriverDetailsTable(models.Model):
-    carId=models.OneToOneField(CarDetailsTable,on_delete=models.CASCADE,related_name="carId")
-    
+    carId=models.ManyToManyField(CarStatusTable,verbose_name="carId")#ie a driver can ride multiple cars and each car can be driven by multiple drivers
+    name=models.CharField(max_length=30)
+    phone=models.CharField(max_length=10)
+    avg_rating=models.FloatField(default=0.0)#the average of all the ratings he has received so far
+
+    class Meta:
+        verbose_name_plural = "DriverDetailsTable"
+
+# #this is wrong
+class CarDetailsTable(models.Model):
+    carId = models.ForeignKey(CarStatusTable,verbose_name="carId",on_delete=models.CASCADE)
+    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE)
+    carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
+    carModel=models.CharField(max_length=50)
+    carLicense=models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name_plural = "CarDetailsTable"
+
+class TripTable(models.Model):
+    carId = models.ForeignKey(CarStatusTable,verbose_name="carId",on_delete=models.CASCADE)
+    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE)
+    customerId = models.ForeignKey(CustomerTable,verbose_name="customerId",on_delete=models.CASCADE)
+    sourceLocation = GeoLocationField()
+    destinationLocation = GeoLocationField()
+    startTimeInEpochs = models.PositiveIntegerField()
+    endTimeInEpochs = models.PositiveIntegerField()
+    tripPrice = models.FloatField()
+    tripStatus = models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in TripStatus],default=str(TripStatus.UNKNOWN))
+    paymentMode = models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in TripStatus],default=str(PaymentMode.UNKNOWN))
+    rating = models.FloatField(default=0.0)#pertrip which will be aggregated and averaged for that particular driverId
+    feedback = models.CharField(max_length=240)#query top 5 feedbacks about the driver using this attribute
+
+    class Meta:
+        verbose_name_plural = "TripTable"
