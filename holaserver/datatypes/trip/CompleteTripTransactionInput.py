@@ -14,7 +14,7 @@ sys.path.append(lib_path)
 import Trip
 
 class CompleteTripTransactionInput:
-    def __init__(self,tripId,finishLocation,paymentMode):
+    def __init__(self,tripId,finishLocation,paymentMode,rating,feedback):
         self._tripId=tripId#strin
         if isinstance(finishLocation,GeoLocation) == True:
             self._finishLocation=finishLocation#geolocation
@@ -26,6 +26,8 @@ class CompleteTripTransactionInput:
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(Trip.PaymentMode(paymentMode))[12:]
+        self._feedback=feedback
+        self._rating =rating
 
     def __str__(self):
         return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
@@ -61,4 +63,23 @@ class CompleteTripTransactionInput:
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(Trip.PaymentMode(paymentMode))[12:]
+
+    @property
+    def rating(self):
+        return self._rating
+
+    @rating.setter
+    def rating(self,rating):
+        if type(rating)==float and rating >= 0.0 and rating <= 5.0:
+            self._rating = rating
+        else:
+            Exception("rating not of type float or not in range of 0-5")
+
+    @property
+    def feedback(self):
+        return self._feedback
+
+    @feedback.setter
+    def feedback(self,feedback):
+        self._feedback = feedback
 

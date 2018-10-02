@@ -13,4 +13,6 @@ class CompleteTripTransactionInputSerializer(serializers.Serializer):
     tripId = serializers.CharField(max_length=100)
     finishLocation = GeoLocationSerializer()
     paymentMode = serializers.CharField(max_length=100)
+    rating = serializers.FloatField()
+    feedback = serializers.CharField(max_length=100)
 

@@ -28,9 +28,9 @@ from serializers.trip.CompleteTripTransactionInputSerializer import CompleteTrip
 # tripId,finishLocation,paymentMode
 class CompleteTripTransactionInputTestCase(TestCase):
     def testCompleteTripTransactionInputSerialization(self):
-        expectedJSON="{\"tripId\": \"TRIP_ID_1\", \"finishLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"paymentMode\": \"PAYTM_PAYMENT\"}"#4
+        expectedJSON="{\"tripId\": \"TRIP_ID_1\", \"finishLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"paymentMode\": \"PAYTM_PAYMENT\", \"rating\": 1.3, \"feedback\": \"Great guy!\"}"#4
         finishLocation = GeoLocation(123.1,234.1)
-        completetripinp=CompleteTripTransactionInput("TRIP_ID_1",finishLocation,4)
+        completetripinp=CompleteTripTransactionInput("TRIP_ID_1",finishLocation,4,1.3,"Great guy!")
         print("completetripinp",str(completetripinp))
         serializer = CompleteTripTransactionInputSerializer(completetripinp)
         serialisedJSON=json.dumps(serializer.data)
@@ -44,7 +44,7 @@ class CompleteTripTransactionInputTestCase(TestCase):
             assert False
 
     def testCompleteTripTransactionInputDeSerialization(self):
-        inputJSONdict={'tripId': 'TRIP_ID_1', 'finishLocation':{'latitude':123.1,'longitude':234.1}, 'paymentMode':'PAYTM_PAYMENT'}
+        inputJSONdict={'tripId': 'TRIP_ID_1', 'finishLocation':{'latitude':123.1,'longitude':234.1}, 'paymentMode':'PAYTM_PAYMENT', 'rating':1.2, 'feedback':'great guy!'}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)
         stream=BytesIO(inputJSONcontent)
