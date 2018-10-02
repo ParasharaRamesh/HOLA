@@ -10,10 +10,10 @@ from datatypes.trip.Trip import Trip
 
 class ScheduleTripTransactionStatus(enum.Enum):
         UNKNOWN=1
-        SUCCESSFULLY_BOOKED=2
+        SUCCESSFULLY_BOOKED=2#only gonna use this
         PRICE_CHANGED=3
-        NO_CARS_AVAILABLE=4
-        DATABASE_ERROR=5
+        NO_CARS_AVAILABLE=4#gonna use this
+        DATABASE_ERROR=5#gonna use this
 
 class ScheduleTripTransactionResult:
     def __init__(self,scheduleTripTransactionStatus,trip):

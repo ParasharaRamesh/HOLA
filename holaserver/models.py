@@ -73,6 +73,7 @@ class GeoLocationField(models.Field):
 
 # models are defined below
 class CustomerTable(models.Model):
+    #customerId generated here
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)
     email=models.EmailField()
@@ -81,28 +82,8 @@ class CustomerTable(models.Model):
     class Meta:
         verbose_name_plural = "CustomerTable"
 
-class CarStatusTable(models.Model):
-    carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
-    carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
-    geoLocation = GeoLocationField()
-
-    class Meta:
-        verbose_name_plural = "CarStatusTable"
-
-
-class DriverDetailsTable(models.Model):
-    carId=models.ManyToManyField(CarStatusTable,verbose_name="carId")#ie a driver can ride multiple cars and each car can be driven by multiple drivers
-    name=models.CharField(max_length=30)
-    phone=models.CharField(max_length=10)
-    avg_rating=models.FloatField(default=0.0)#the average of all the ratings he has received so far
-
-    class Meta:
-        verbose_name_plural = "DriverDetailsTable"
-
-# #this is wrong
 class CarDetailsTable(models.Model):
-    carId = models.ForeignKey(CarStatusTable,verbose_name="carId",on_delete=models.CASCADE)
-    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE)
+    #carId generated here
     carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
     carModel=models.CharField(max_length=50)
     carLicense=models.CharField(max_length=50)
@@ -110,10 +91,29 @@ class CarDetailsTable(models.Model):
     class Meta:
         verbose_name_plural = "CarDetailsTable"
 
+class CarStatusTable(models.Model):
+    carId = models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,default=1)
+    carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
+    geoLocation = GeoLocationField()
+    
+    class Meta:
+        verbose_name_plural = "CarStatusTable"
+
+class DriverDetailsTable(models.Model):
+    #driverId generated here
+    carId=models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,default=1)#ie a driver can ride multiple cars and each car can be driven by multiple drivers
+    name=models.CharField(max_length=30)
+    phone=models.CharField(max_length=10)
+    avg_rating=models.FloatField(default=0.0)#the average of all the ratings he has received so far
+
+    class Meta:
+        verbose_name_plural = "DriverDetailsTable"
+
 class TripTable(models.Model):
-    carId = models.ForeignKey(CarStatusTable,verbose_name="carId",on_delete=models.CASCADE)
-    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE)
-    customerId = models.ForeignKey(CustomerTable,verbose_name="customerId",on_delete=models.CASCADE)
+    #tripId generated
+    carId = models.ForeignKey(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,null=True)
+    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE,null=True)
+    customerId = models.ForeignKey(CustomerTable,verbose_name="customerId",on_delete=models.CASCADE,null=True)
     sourceLocation = GeoLocationField()
     destinationLocation = GeoLocationField()
     startTimeInEpochs = models.PositiveIntegerField()

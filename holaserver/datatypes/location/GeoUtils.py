@@ -9,6 +9,7 @@ class GeoUtils:
 
 
     #some math function to compute the distance between 2 points, el1 and el2 are the altitude taken into consideration
+    #HaverSine Formula
     def distance(self,lat1,lon1,lat2,lon2,el1,el2):
         R = 6373.0
         dlon = lon2 - lon1

@@ -18,10 +18,10 @@ class PaymentMode(enum.Enum):
 
 class TripStatus(enum.Enum):
     UNKNOWN=1
-    TRIP_STATUS_SCHEDULED=2
-    TRIP_STATUS_ONGOING=3
-    TRIP_STATUS_COMPLETED=4
-    TRIP_STATUS_CANCELLED=5
+    TRIP_STATUS_SCHEDULED=2#this is used
+    TRIP_STATUS_ONGOING=3#never used as we are not properly simulating
+    TRIP_STATUS_COMPLETED=4#this is used
+    TRIP_STATUS_CANCELLED=5#this is used
 
 class Trip:
     def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode):

@@ -13,10 +13,10 @@ import GeoLocation
 
 class CarAvailabilityStatus(enum.Enum):
     UNKNOWN=1
-    CAR_OFF_DUTY=2
+    CAR_OFF_DUTY=2#maybe never used as we are not doing driver side of the app,ideally on driver log in this should become active
     CAR_AVAILABLE=3
     CAR_ON_TRIP=4
-    CAR_ON_TRIP_CLOSE_TO_COMPLETION=5
+    CAR_ON_TRIP_CLOSE_TO_COMPLETION=5# this stuff wont be used as we are only simulating cars and we cant say when they have come to a completion , ideally an event should be sent to server when close to completion
 
 class CarStatus:
     def __init__(self,carId,geoLocation,carAvailability):
