@@ -1,6 +1,8 @@
 
 Sequence of API calls:
 
+//still have to write
+
 
 
 
@@ -74,7 +76,7 @@ API Definition/ Pseudocode:
         .Note in client side if we get either one of the 2 errors the customer is sent back to the screen which has the carsinlocation api being called.
 
 
-6.CancelTrip API://called on the case if the user presses the cancel button after the driver detailas are shown
+6.CancelTrip API://called on the case if the user presses the cancel button after the driver details are shown
     Input:{"tripId":..}
     Output:{"result":success/failure}//either way go back to 
     Pseudocode:
