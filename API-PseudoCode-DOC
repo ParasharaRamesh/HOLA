@@ -1,3 +1,13 @@
+REST General Philosophy:
+
+HTTP GET : Only for retreiving resource/information
+HTTP POST :For creating a new Resource
+HTTP PUT : Update existing resource
+HTTP DELETE: only to delete resources
+HTTP PATCH : partial update on resource
+
+
+
 
 Sequence/Flow of API calls:
 
@@ -22,7 +32,7 @@ Sequence/Flow of API calls:
 
 API Definition/ Pseudocode:
 
-1.CarDetails API:
+1.CarDetails API:(GET)
     Input :{"carId":...}
     Output:{"car":CarDT,"carDriver":CarDriverDT}
     Pseudocode:
@@ -32,14 +42,14 @@ API Definition/ Pseudocode:
         .for getting the feedbacks go to the triptable and search for specific driverId and sort by triprating and get the top5 feedbacks and store it in a list and use that list to fill the CarDriverDT in the responseDT
         .Note:if driver has no feedbacks yet we return empty list.
 
-2.CarStatus API:
+2.CarStatus API:(GET)
     Input :{"carId":...}
     Output:{"carStatus":CarStatusDT}
     Pseudocode:
         .check input json ka all fields and check for NULL object passed and return appropriate error code.
         .use Carid to get caravailability and geolocation from CarStatusTable
 
-3.CarsInLocation API:
+3.CarsInLocation API:(GET)
     Input:{"geoLocation":geoLocationDT}//users current geolocation
     Output:{"carStatuses":List of CarStatusDT}
     Pseudocode:
@@ -50,7 +60,7 @@ API Definition/ Pseudocode:
         .Note:there is no GlobalConstants file as of now , but if you want to create it you can refer datatypes.loction.GeoUtils for HAVER_SINE_FORMULA,also have a threshold for FareEstimate discount
 
 
-4.FareEstimates API:
+4.FareEstimates API(GET):
     Input:{"customerId":...,"sourceLocation":geoLocationDT,"destinationLocation":geoLocationDT}
     Output:{"estimatesForCarTypes":list of estimatesForCarType DT}
     Pseudocode:
@@ -65,7 +75,7 @@ API Definition/ Pseudocode:
         .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
 
 
-5.ScheduleTrip API:
+5.ScheduleTrip API:(POST)
     Input:{"carType":..,"tripPrice":..,sourceLocation":geoLocationDT,"destinationLocation":geoLocationDT}//this is the ScheduleTripTransactionInput DT
     Output:{"scheduleTripStatus":..,"trip":TripDT}//this is the ScheduleTripTransactionResult DT
     Pseudocode:
@@ -87,7 +97,7 @@ API Definition/ Pseudocode:
         .Note in client side if we get either one of the 2 errors the customer is sent back to the screen which has the carsinlocation api being called.
 
 
-6.CancelTrip API://called on the case if the user presses the cancel button after the driver details are shown
+6.CancelTrip API:(PUT)//called on the case if the user presses the cancel button after the driver details are shown
     Input:{"tripId":..}
     Output:{"result":success/failure}//either way go back to 
     Pseudocode:
@@ -98,7 +108,7 @@ API Definition/ Pseudocode:
             .either way take the user back to the getCarsInLocation screen.
 
 
-7.CompleteTrip API:
+7.CompleteTrip API:(PUT)
     Input:{"tripId":..,"finishLocation":geolocationDT,"paymentMode":..,"rating":..,"feedback":..}//completeTripTransactionInputDT
     Output:{"completeTripTransactionStatus":..,"trip":TripDT}//completeTripTransactionResultDT
     Pseudocode:
