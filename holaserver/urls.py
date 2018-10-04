@@ -5,4 +5,5 @@ from .views import *
 urlpatterns = [
     # (?P<pk>[0-9]+)
     url(r'^carstatus/$', CarStatus.as_view(), name='getCarStatus'),
+    url(r'^canceltrip/$', CancelTrip.as_view(), name='cancelTrip'),
 ]

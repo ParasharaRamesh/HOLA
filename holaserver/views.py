@@ -69,6 +69,43 @@ class CancelTrip(APIView) :
     #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
     parser_classes = (JSONParser,)  
 
+    def put(self, request, format=None):
+        if "tripId" not in request.data or not isinstance(request.data["tripId"], int):
+            return Response({
+                "result" : "failure",
+                "message" : "Invalid data sent",
+            })
+        
+        try:
+            tripEntry = TripTable.objects.get(id=request.data["tripId"])
+        except TripTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Trip does not exist",
+            })
+        
+        if tripEntry.tripStatus != "TRIP_STATUS_SCHEDULED":
+            return Response({
+                "result" : "failure",
+                "message" : "Trip not scheduled",
+            })
+        
+        tripEntry.tripStatus = "TRIP_STATUS_CANCELLED";
+        tripEntry.save();
+        # make car status available
+        try:
+            carEntry = CarStatusTable.objects.get(carId=tripEntry.carId.id)
+        except CarStatusTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Oops",
+            })
+        #should ideally verify if car was actually on trip
+        carEntry.carAvailability = "CAR_AVAILABLE"
+        carEntry.save()
+
+        return Response({"result" : "success"})
+
 class CompleteTrip(APIView):
     # If the user presses "confirm" then it internally finshes a trip which transports the car to the destination location and it stays there until the next time somone books a cab.The user is then prompted to enter feedback and give a rating of the driver for that particular trip
     #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
