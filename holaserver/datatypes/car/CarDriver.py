@@ -1,12 +1,12 @@
 TOP_COMMENTS = 5
 class CarDriver:
-    def __init__(self,driverId,name,phone,feedback):
+    def __init__(self,driverId,name,phone,rating,feedback):
         self._driverId=driverId#string
         self._name=name#string
         self._phone=phone#string
         #not sure if we should set rating everytime rather it should be trigger after every trip, or every new driver starts with a rating of 0.0
-        self._rating=0.0
-        self._feedbacks=[feedback]#List(string),his top5 best feedback , maybe feedback could be another class in itself not sure!
+        self._rating=rating
+        self._feedbacks=feedback#List(string),his top5 best feedback , maybe feedback could be another class in itself not sure!
 
 
     def __str__(self):
@@ -57,13 +57,8 @@ class CarDriver:
 
     @feedbacks.setter
     def feedbacks(self,feedback):
-        if self._feedbacks == None:
-            self._feedbacks=[feedback]
-        elif len(self._feedbacks)<TOP_COMMENTS:
-            self._feedbacks.append(feedback)
-        #if there are 5 comments in this buffer already , then remove the first one and then insert another one in the end
-        elif len(self._feedbacks) == TOP_COMMENTS:
-            del self._feedbacks[0]#all feedbacks will anyway be there in the database! so we can always insert this later
-            self._feedbacks.append(feedback)
+        if self._feedbacks == None and len(feedback)<=TOP_COMMENTS:
+            self._feedbacks=feedback
+
 
 

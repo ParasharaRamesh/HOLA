@@ -27,12 +27,11 @@ from serializers.car.CarDriverSerializer import CarDriverSerializer
 class CarDriverTestCase(TestCase):
     def testCarDriverSerialization(self):
         expectedJSON="{\'driverId\': \'driver_id_11\', \'name\': \'MANJUNATH\', \'phone\': \'9898712312\', \'rating\': 3.0, \'feedbacks\': [\'Great driver!\']}"
-        carDriver=CarDriver("driver_id_11","MANJUNATH","9898712312","Great driver!")
+        carDriver=CarDriver("driver_id_11","MANJUNATH","9898712312",3.0,["Great driver!"])
         print("Cardriver",str(carDriver))
         # carDriver.driverId="driver_id_11"
         # carDriver.name="MANJUNATH"
         # carDriver.phone="9898712312"
-        carDriver.rating=3.0
         # carDriver.feedbacks='Great driver!'#this line is like feedbacks.push(feedback)
         serializer = CarDriverSerializer(carDriver)
         serialisedJSON=str(serializer.data)

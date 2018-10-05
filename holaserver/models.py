@@ -72,8 +72,9 @@ class GeoLocationField(models.Field):
         return self.get_prep_value(obj)
 
 # models are defined below
+#writing explicit primary key id's as there are problems when serializing
 class CustomerTable(models.Model):
-    #customerId generated here
+    customerId=models.AutoField(primary_key=True,default=1)
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)
     email=models.EmailField()
@@ -83,7 +84,7 @@ class CustomerTable(models.Model):
         verbose_name_plural = "CustomerTable"
 
 class CarDetailsTable(models.Model):
-    #carId generated here
+    carId=models.AutoField(primary_key=True)
     carType=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarType],default=str(CarType.UNKNOWN))
     carModel=models.CharField(max_length=50)
     carLicense=models.CharField(max_length=50)
@@ -92,7 +93,7 @@ class CarDetailsTable(models.Model):
         verbose_name_plural = "CarDetailsTable"
 
 class CarStatusTable(models.Model):
-    carId = models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,default=1)
+    carId = models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,unique=True)
     carAvailability=models.CharField(max_length=100,choices=[(tag.name,tag.value) for tag in CarAvailabilityStatus],default=str(CarAvailabilityStatus.UNKNOWN))
     geoLocation = GeoLocationField()
     
@@ -100,7 +101,7 @@ class CarStatusTable(models.Model):
         verbose_name_plural = "CarStatusTable"
 
 class DriverDetailsTable(models.Model):
-    #driverId generated here
+    driverId=models.AutoField(primary_key=True,default=1)
     carId=models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,default=1)#ie a driver can ride multiple cars and each car can be driven by multiple drivers
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)
@@ -110,9 +111,9 @@ class DriverDetailsTable(models.Model):
         verbose_name_plural = "DriverDetailsTable"
 
 class TripTable(models.Model):
-    #tripId generated
+    tripId=models.AutoField(primary_key=True)
     carId = models.ForeignKey(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,null=True)
-    driverId = models.ForeignKey(DriverDetailsTable,verbose_name="driverId",on_delete=models.CASCADE,null=True)
+    #driver id is unique for each car
     customerId = models.ForeignKey(CustomerTable,verbose_name="customerId",on_delete=models.CASCADE,null=True)
     sourceLocation = GeoLocationField()
     destinationLocation = GeoLocationField()

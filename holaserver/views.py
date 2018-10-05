@@ -5,29 +5,60 @@ from rest_framework import status
 from rest_framework.response import Response#,status
 from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
+import datetime
+
 from .models import *
+
+from .datatypes.car import *
+from .datatypes.trip import *
+
+from .datatypes.car.Car import Car
+from .datatypes.car.CarDriver import CarDriver
+from .datatypes.trip.CompleteTripTransactionResult import CompleteTripTransactionResult
+from .serializers.car.CarSerializer import CarSerializer
 from .serializers.car.CarStatusSerializer import CarStatusSerializer
+from .serializers.car.CarDriverSerializer import CarDriverSerializer
+from .serializers.trip.CompleteTripTransactionResultSerializer import CompleteTripTransactionResultSerializer
+
+from .datatypes.location import *
+from .datatypes.estimate import *
+from .datatypes.customer import *
+
+from .serializers.customer import *
+from .serializers.location import *
+from .serializers.estimate import *
+#from .serializers.trip import *
 
 # Create your views here.
-class CarsInLocation(APIView): 
-    #On entering the app, show all the cars around your current location
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
-    parser_classes = (JSONParser,)
 
-class FareEstimate(APIView):
-    #On entering source and destination , it should you the path on the map along with the fares for each car type
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
-    parser_classes = (JSONParser,)
-
-class ScheduleTrip(APIView):
-    #On accepting a specific cartype this api is called which selects the nearest car and schedules it for you in the backend
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
-    parser_classes = (JSONParser,)
-
+#FINISHED
 class CarStatus(APIView):
     '''
     Pseudocode:
-        .check input json ka all fields and check for NULL object passed and return appropriate error code.(Taken care of internally!)
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use Carid to get caravailability and geolocation from CarStatusTable
+    '''
+    parser_classes = (JSONParser,)
+
+
+    def post(self,request,format=None):
+        if "carId" not in request.data or not isinstance(request.data["carId"], int):
+            return Response({
+            "result" : "failure",
+            "message" : "Invalid data sent",
+            })
+        try:
+            carStatusEntry = CarStatusTable.objects.get(carId=request.data["carId"])
+        except CarStatusTable.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = CarStatusSerializer(carStatusEntry)
+        return Response(serializer.data)
+
+#FINISHED
+class CarDetails(APIView):
+    '''   
+    Pseudocode:
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
         .use CarId and query the CarDetailsTable to get the carType,carModel,CarLicense for creating the CarDT in the response object
         .follow driverId and go to driverDetailsTable to get the name,phone&avg_ratings for creating the CarDriverDT
         .for getting the feedbacks go to the triptable and search for specific driverId and sort by triprating and get the top5 feedbacks and store it in a list and use that list to fill the CarDriverDT in the responseDT
@@ -35,38 +66,55 @@ class CarStatus(APIView):
     '''
     parser_classes = (JSONParser,)
 
-
-    def get(self,request,format=None):
-        inpCarId = request.data['carId']
+    def post(self,request,format=None):
+        if "carId" not in request.data or not isinstance(request.data["carId"], int):
+            return Response({
+            "result" : "failure",
+            "message" : "Invalid data sent",
+            })
         try:
-            carStatusEntry = CarStatusTable.objects.get(id=inpCarId)
-        except CarStatusTable.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        print("entries are",carStatusEntry)
-        serializer = CarStatusSerializer(carStatusEntry,many=True)
-        return Response(serializer.data)
+            driverDetailsEntry = DriverDetailsTable.objects.get(carId=request.data["carId"])
+        except DriverDetailsTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Driverdetails table doesnt have that object",
+            })
 
-# use the below code to test the rest api!
-# from rest_framework.test import APIRequestFactory
+        
+        try:
+            carDetailsEntry = CarDetailsTable.objects.get(carId=request.data["carId"])
+        except CarDetailsTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Cardetails table doesnt have that object",
+            })
 
-# # Using the standard RequestFactory API to create a form POST request
-# factory = APIRequestFactory()
-# request = factory.post('/notes/', {'title': 'new idea'})
-     
+        try:
+            tripEntries = TripTable.objects.filter(carId=request.data["carId"]).order_by('-rating')[:5]
+            feedbacks = [te.feedback for te in tripEntries]
+            driverObject = CarDriver(driverDetailsEntry.driverId,driverDetailsEntry.name,driverDetailsEntry.phone,driverDetailsEntry.avg_rating,feedbacks)
+            #driverObject.feedback=tripEntries#list of feedbacks
+        except TripTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Trip table doesnt have that object",
+            })
 
-class CarDetails(APIView):
-    # On scheduling a trip it takes the user to a screen where he can see the driver details along with a "confirm" or "cancel" button.This API is mainly used to show the driver details
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
-    parser_classes = (JSONParser,)
+        carserializer = CarSerializer(carDetailsEntry)
+        driverserializer = CarDriverSerializer(driverObject)
+        return Response({"car":carserializer.data,"carDriver":driverserializer.data})
 
-    def get(self,request,format=None):
-        pass
-
-
-
+#FINISHED
 class CancelTrip(APIView) :
-    # If the user presses "cancel" then it takes the user back to the home screen which is the map view with all the "CarsInLocation".Internally it just makes the cancelled car available for scheduling the next time
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
+    '''
+       Pseudocode:
+        .use the tripID and check the status 
+        .if status ==TRIP_STATUS_SCHEDULED:
+            .that means that this trip was scheduled before and we have to cancel it so set the status to TRIP_STATUS_CANCELLED 
+            .set Car Status to CAR_AVAILABLE and then return the success/failure of this operation
+            .either way take the user back to the getCarsInLocation screen.
+
+    '''
     parser_classes = (JSONParser,)  
 
     def put(self, request, format=None):
@@ -77,7 +125,7 @@ class CancelTrip(APIView) :
             })
         
         try:
-            tripEntry = TripTable.objects.get(id=request.data["tripId"])
+            tripEntry = TripTable.objects.get(tripId=request.data["tripId"])
         except TripTable.DoesNotExist:
             return Response({
                 "result" : "failure",
@@ -94,7 +142,73 @@ class CancelTrip(APIView) :
         tripEntry.save();
         # make car status available
         try:
-            carEntry = CarStatusTable.objects.get(carId=tripEntry.carId.id)
+            carEntry = CarStatusTable.objects.get(carId=tripEntry.carId.carId)
+        except CarStatusTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Oops",
+            })
+        #should ideally set the carAvailbility as AVAILABLE for the next trip
+        carEntry.carAvailability = "CAR_AVAILABLE"
+        carEntry.save()
+
+        return Response({"result" : "success"})
+
+
+class CarsInLocation(APIView): 
+    '''
+    Pseudocode:
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use Carid to get caravailability and geolocation from CarStatusTable
+    '''
+    parser_classes = (JSONParser,)
+
+class FareEstimate(APIView):
+    #On entering source and destination , it should you the path on the map along with the fares for each car type
+    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
+    parser_classes = (JSONParser,)
+
+class ScheduleTrip(APIView):
+    #On accepting a specific cartype this api is called which selects the nearest car and schedules it for you in the backend
+    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
+    parser_classes = (JSONParser,)
+
+
+#INCOMPLETE but started!!
+class CompleteTrip(APIView):
+    # Might be incorrect as of now have to test it out after finishing scheduleTrip API
+    parser_classes = (JSONParser,)
+
+    def put(self, request, format=None):
+        if ("tripId" not in request.data or not isinstance(request.data["tripId"], int) or
+                "finishLocation" not in request.data or
+                "paymentMode" not in request.data or
+                "rating" not in request.data or
+                "feedback" not in request.data):
+            return Response({
+                "result" : "failure",
+                "message" : "Invalid data sent",
+            })
+
+        try:
+            tripEntry = TripTable.objects.get(tripId=request.data["tripId"])
+        except TripTable.DoesNotExist:
+            #tripObject = CompleteTripTransactionResult("TRIP_ID_NOT_FOUND",)
+            return Response({
+                "result" : "failure",
+                "message" : "Trip doesn't exist",
+            })
+        
+        tripEntry.endTimeInEpochs = "123" #datetime.datetime.utcnow()
+        tripEntry.tripStatus = "TRIP_STATUS_COMPLETED"
+        tripEntry.paymentMode = request.data["paymentMode"]
+        #if tripEntry.destinationLocation != request.data["finishLocation"]
+        #   tripEntry.destinationLocation = request.data["finishLocation"]
+        tripEntry.save()
+
+        #make car status available
+        try:
+            carEntry = CarStatusTable.objects.get(carId=tripEntry.carId.carId)
         except CarStatusTable.DoesNotExist:
             return Response({
                 "result" : "failure",
@@ -104,9 +218,18 @@ class CancelTrip(APIView) :
         carEntry.carAvailability = "CAR_AVAILABLE"
         carEntry.save()
 
-        return Response({"result" : "success"})
+        #update driver rating
+        try:
+            driverEntry = DriverDetailsTable.objects.get(carId=tripEntry.carId.carId)
+        except DriverDetailsTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "Oops",
+            })
+        driverEntry.avg_rating = (driverEntry.avg_rating + request.data["rating"]) / 2 # ???
+        driverEntry.save()
 
-class CompleteTrip(APIView):
-    # If the user presses "confirm" then it internally finshes a trip which transports the car to the destination location and it stays there until the next time somone books a cab.The user is then prompted to enter feedback and give a rating of the driver for that particular trip
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
-    parser_classes = (JSONParser,)
+        result = CompleteTripTransactionResult("SUCCESS", tripEntry)
+        serializer = CompleteTripTransactionResultSerializer(result)
+        
+        return Response(serializer.data)
