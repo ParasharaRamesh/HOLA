@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
+from django.utils.six import BytesIO
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response#,status
@@ -19,14 +21,19 @@ from .serializers.car.CarSerializer import CarSerializer
 from .serializers.car.CarStatusSerializer import CarStatusSerializer
 from .serializers.car.CarDriverSerializer import CarDriverSerializer
 from .serializers.trip.CompleteTripTransactionResultSerializer import CompleteTripTransactionResultSerializer
+from .serializers.location.GeoLocationSerializer import GeoLocationSerializer
 
-from .datatypes.location import *
+from .datatypes.location.GeoLocation import GeoLocation
+from .datatypes.location.GeoUtils import *
+
 from .datatypes.estimate import *
 from .datatypes.customer import *
 
 from .serializers.customer import *
-from .serializers.location import *
+
 from .serializers.estimate import *
+
+from GlobalConstants import *
 #from .serializers.trip import *
 
 # Create your views here.
@@ -154,25 +161,85 @@ class CancelTrip(APIView) :
 
         return Response({"result" : "success"})
 
-
+#FINISHED
 class CarsInLocation(APIView): 
     '''
-    Pseudocode:
+        Pseudocode:
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .Return list of cars that are CarStatus.CarAvailability.CAR_AVAILABLE &
+                       within GlobalConstants.SEARCH_RADIUS(inclusive) from CarStatusTable.
+        .Use GlobalConstants.HAVER_SINE_FORMULA to calculate the distance between two lat/longs.
+        .Note:there is no GlobalConstants file as of now , but if you want to create it you can refer datatypes.loction.GeoUtils for HAVER_SINE_FORMULA,also have a threshold for FareEstimate discount
+
         .check input json ka all fields and check for NULL object passed and return appropriate error code.
         .use Carid to get caravailability and geolocation from CarStatusTable
     '''
+    #carId,geolocation,caravailability ==>carstatusDT
     parser_classes = (JSONParser,)
+    def post(self,request,format=None):
+        if "geoLocation" not in request.data:
+            print("request is ",type(request.data))
+            return Response({
+            "result" : "failure",
+            "message" : "input JSON does not have geoLocation",
+            })
+        #checking if geoLocation is of valid geolocation datatype    
+        else:
+            inputJSONcontent = JSONRenderer().render(request.data["geoLocation"])
+            stream=BytesIO(inputJSONcontent)
+            inputJSON=JSONParser().parse(stream)
+            serializer = GeoLocationSerializer(data=inputJSON)
+            if not serializer.is_valid():
+                return Response({
+                "result" : "failure",
+                "message" : "input JSON is not of geoLocation type",
+                })
 
+        inputLat = request.data["geoLocation"]["latitude"]
+        inputLong = request.data["geoLocation"]["longitude"]
+
+        try:
+            carStatusEntries = CarStatusTable.objects.filter(carAvailability="CAR_AVAILABLE")
+            carStatusEntriesNearLocation = list(filter(lambda t: isNearLocation(inputLat,inputLong,t.geoLocation.latitude,t.geoLocation.longitude), carStatusEntries))
+        except CarStatusTable.DoesNotExist:
+            return Response({
+                "result" : "failure",
+                "message" : "No cars found near given location",
+            })
+        serializerList =[CarStatusSerializer(carStatus) for carStatus in carStatusEntriesNearLocation]
+        return Response({"carStatuses":[serializer.data for serializer in serializerList]})
+
+#To be done
 class FareEstimate(APIView):
-    #On entering source and destination , it should you the path on the map along with the fares for each car type
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
+    '''
+    Pseudocode:
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
+        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
+        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count )  
+        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
+        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
+        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
+        .return this list of estimatesForCarTypes
+        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
+    '''
     parser_classes = (JSONParser,)
 
+#to be done
 class ScheduleTrip(APIView):
-    #On accepting a specific cartype this api is called which selects the nearest car and schedules it for you in the backend
-    #These classes get executed before the request comes to this API, ie these are policy attributes .. we might not need them now but for future use.
+    '''
+    PsuedoCode"
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
+        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
+        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count   
+        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
+        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
+        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
+        .return this list of estimatesForCarTypes
+        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
+    '''
     parser_classes = (JSONParser,)
-
 
 #INCOMPLETE but started!!
 class CompleteTrip(APIView):
