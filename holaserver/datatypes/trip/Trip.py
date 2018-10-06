@@ -3,10 +3,10 @@ import enum
 import sys
 curr_path=os.path.dirname(__file__)
 # print("currpath is ",curr_path)
-lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
+#lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
 # print("in trip lib path is ",lib_path)
-sys.path.append(lib_path)
-from datatypes.location.GeoLocation import GeoLocation
+#sys.path.append(lib_path)
+from location.GeoLocation import GeoLocation
 
 
 

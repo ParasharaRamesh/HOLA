@@ -34,7 +34,7 @@ from .serializers.customer import *
 
 from .serializers.estimate import *
 
-from GlobalConstants import *
+from .GlobalConstants import *
 #from .serializers.trip import *
 
 # Create your views here.
@@ -256,6 +256,7 @@ class CompleteTrip(APIView):
                 "rating" not in request.data or
                 "feedback" not in request.data):
             return Response({
+                "completeTripTransactionStatus" : "TRIP_ID_NOT_FOUND",
                 "result" : "failure",
                 "message" : "Invalid data sent",
             })
@@ -304,7 +305,7 @@ class CompleteTrip(APIView):
         driverEntry.avg_rating = (driverEntry.avg_rating + request.data["rating"]) / 2 # ???
         driverEntry.save()
 
-        tripObject = Trip(tripEntry.tripId, tripEntry.carId, tripEntry.customerId, tripEntry.sourceLocation,
+        tripObject = Trip(tripEntry.tripId, tripEntry.carId.carId, driverEntry.driverId, tripEntry.customerId.customerId, tripEntry.sourceLocation,
                         tripEntry.destinationLocation, tripEntry.startTimeInEpochs, tripEntry.endTimeInEpochs,
                         tripEntry.tripPrice, 4, tripEntry.paymentMode)
 
