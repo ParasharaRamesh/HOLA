@@ -74,7 +74,7 @@ class GeoLocationField(models.Field):
 # models are defined below
 #writing explicit primary key id's as there are problems when serializing
 class CustomerTable(models.Model):
-    customerId=models.AutoField(primary_key=True,default=1)
+    customerId=models.AutoField(primary_key=True)
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)
     email=models.EmailField()
@@ -101,7 +101,7 @@ class CarStatusTable(models.Model):
         verbose_name_plural = "CarStatusTable"
 
 class DriverDetailsTable(models.Model):
-    driverId=models.AutoField(primary_key=True,default=1)
+    driverId=models.AutoField(primary_key=True)
     carId=models.OneToOneField(CarDetailsTable,verbose_name="carId",on_delete=models.CASCADE,default=1)#ie a driver can ride multiple cars and each car can be driven by multiple drivers
     name=models.CharField(max_length=30)
     phone=models.CharField(max_length=10)

@@ -2,11 +2,12 @@ import os
 import enum
 import sys
 curr_path=os.path.dirname(__file__)
-# print("currpath is ",curr_path)
+# print("currpath in cttr is ",curr_path)
 #lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
 # print("in trip lib path is ",lib_path)
 #sys.path.append(lib_path)
-from trip.Trip import Trip
+from .Trip import Trip
+
 
 
 class CompleteTripTransactionStatus(enum.Enum):
@@ -23,7 +24,6 @@ class CompleteTripTransactionResult:
         if completeTripTransactionStatus<1 or completeTripTransactionStatus>5:
             Exception("completeTripTransactionStatus must be between 1 and 5")
         self._completeTripTransactionStatus=str(CompleteTripTransactionStatus(completeTripTransactionStatus))[30:]
-
         if isinstance(trip,Trip) == True:
             self._trip=trip
         else:

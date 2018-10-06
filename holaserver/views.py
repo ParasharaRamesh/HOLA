@@ -10,37 +10,53 @@ from django.contrib.auth.models import User
 import datetime
 import time
 
+#all models
 from .models import *
 
-from .datatypes.car import *
-from .datatypes.trip import *
-
-from .datatypes.car.Car import Car
+#all datatypes
+from .datatypes.car.Car import Car,CarType
 from .datatypes.car.CarDriver import CarDriver
-from .datatypes.trip.CompleteTripTransactionResult import CompleteTripTransactionResult
+from .datatypes.car.CarStatus import CarStatus,CarAvailabilityStatus
+from .datatypes.location.GeoLocation import GeoLocation
+from .datatypes.location.GeoUtils import *
+from .datatypes.trip.CompleteTripTransactionResult import CompleteTripTransactionResult,CompleteTripTransactionStatus
+from .datatypes.trip.CompleteTripTransactionInput import CompleteTripTransactionInput
+from .datatypes.trip.ScheduleTripTransactionInput import ScheduleTripTransactionInput
+from .datatypes.trip.ScheduleTripTransactionResult import ScheduleTripTransactionResult,ScheduleTripTransactionStatus
+from .datatypes.trip.Trip import Trip,TripStatus,PaymentMode
+from .datatypes.customer.Customer import Customer
+from .datatypes.estimate.EstimateForCarType import EstimateForCarType
+
+
+#all serializers for each datatype
 from .serializers.car.CarSerializer import CarSerializer
 from .serializers.car.CarStatusSerializer import CarStatusSerializer
 from .serializers.car.CarDriverSerializer import CarDriverSerializer
+from .serializers.trip.CompleteTripTransactionInputSerializer import CompleteTripTransactionInputSerializer
 from .serializers.trip.CompleteTripTransactionResultSerializer import CompleteTripTransactionResultSerializer
+from .serializers.trip.ScheduleTripTransactionInputSerializer import ScheduleTripTransactionInputSerializer
+from .serializers.trip.ScheduleTripTransactionResultSerializer import ScheduleTripTransactionResultSerializer
+from .serializers.trip.TripSerializer import TripSerializer
 from .serializers.location.GeoLocationSerializer import GeoLocationSerializer
+from .serializers.estimate.EstimateForCarTypeSerializer import EstimateForCarTypeSerializer
+from .serializers.customer.CustomerSerializer import CustomerSerializer
 
-from .datatypes.location.GeoLocation import GeoLocation
-from .datatypes.location.GeoUtils import *
-
-from .datatypes.estimate import *
-from .datatypes.customer import *
-
-from .serializers.customer import *
-
-from .serializers.estimate import *
-
+#global constants
 from .GlobalConstants import *
-#from .serializers.trip import *
+
+'''
+`NOTE:
+ for any API you write on error/exception conditions you return a Response object with 
+ the intended fields but made as null string along with a result field and a message field
+
+So that in client code we dont get a key error on querying for those specific JSON fields.
+'''
+
 
 # Create your views here.
 
 #FINISHED
-class CarStatus(APIView):
+class CarStatusAPI(APIView):
     '''
     Pseudocode:
         .check input json ka all fields and check for NULL object passed and return appropriate error code.
@@ -52,18 +68,23 @@ class CarStatus(APIView):
     def post(self,request,format=None):
         if "carId" not in request.data or not isinstance(request.data["carId"], int):
             return Response({
+            "carStatus": "",
             "result" : "failure",
             "message" : "Invalid data sent",
             })
         try:
             carStatusEntry = CarStatusTable.objects.get(carId=request.data["carId"])
         except CarStatusTable.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({
+            "carStatus": "",
+            "result" : "failure",
+            "message" : "carStatus table has no carStatusEntry",
+            })
         serializer = CarStatusSerializer(carStatusEntry)
         return Response(serializer.data)
 
 #FINISHED
-class CarDetails(APIView):
+class CarDetailsAPI(APIView):
     '''   
     Pseudocode:
         .check input json ka all fields and check for NULL object passed and return appropriate error code.
@@ -77,6 +98,8 @@ class CarDetails(APIView):
     def post(self,request,format=None):
         if "carId" not in request.data or not isinstance(request.data["carId"], int):
             return Response({
+            "car": "",
+            "carDriver": "",
             "result" : "failure",
             "message" : "Invalid data sent",
             })
@@ -84,6 +107,8 @@ class CarDetails(APIView):
             driverDetailsEntry = DriverDetailsTable.objects.get(carId=request.data["carId"])
         except DriverDetailsTable.DoesNotExist:
             return Response({
+                "car": "",
+                "carDriver": "",
                 "result" : "failure",
                 "message" : "Driverdetails table doesnt have that object",
             })
@@ -93,6 +118,8 @@ class CarDetails(APIView):
             carDetailsEntry = CarDetailsTable.objects.get(carId=request.data["carId"])
         except CarDetailsTable.DoesNotExist:
             return Response({
+                "car": "",
+                "carDriver": "",
                 "result" : "failure",
                 "message" : "Cardetails table doesnt have that object",
             })
@@ -104,6 +131,8 @@ class CarDetails(APIView):
             #driverObject.feedback=tripEntries#list of feedbacks
         except TripTable.DoesNotExist:
             return Response({
+                "car": "",
+                "carDriver": "",
                 "result" : "failure",
                 "message" : "Trip table doesnt have that object",
             })
@@ -113,7 +142,7 @@ class CarDetails(APIView):
         return Response({"car":carserializer.data,"carDriver":driverserializer.data})
 
 #FINISHED
-class CancelTrip(APIView) :
+class CancelTripAPI(APIView) :
     '''
        Pseudocode:
         .use the tripID and check the status 
@@ -139,7 +168,9 @@ class CancelTrip(APIView) :
                 "result" : "failure",
                 "message" : "Trip does not exist",
             })
-        
+
+        #for trip status refer to TripStatus enum in Trip.py  
+
         if tripEntry.tripStatus != "TRIP_STATUS_SCHEDULED":
             return Response({
                 "result" : "failure",
@@ -154,16 +185,17 @@ class CancelTrip(APIView) :
         except CarStatusTable.DoesNotExist:
             return Response({
                 "result" : "failure",
-                "message" : "Oops",
+                "message" : "no such carEntry found!",
             })
         #should ideally set the carAvailbility as AVAILABLE for the next trip
+
         carEntry.carAvailability = "CAR_AVAILABLE"
         carEntry.save()
 
         return Response({"result" : "success"})
 
 #FINISHED
-class CarsInLocation(APIView): 
+class CarsInLocationAPI(APIView): 
     '''
         Pseudocode:
         .check input json ka all fields and check for NULL object passed and return appropriate error code.
@@ -210,40 +242,8 @@ class CarsInLocation(APIView):
         serializerList =[CarStatusSerializer(carStatus) for carStatus in carStatusEntriesNearLocation]
         return Response({"carStatuses":[serializer.data for serializer in serializerList]})
 
-#To be done
-class FareEstimate(APIView):
-    '''
-    Pseudocode:
-        .check input json ka all fields and check for NULL object passed and return appropriate error code.
-        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
-        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
-        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count )  
-        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
-        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
-        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
-        .return this list of estimatesForCarTypes
-        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
-    '''
-    parser_classes = (JSONParser,)
-
-#to be done
-class ScheduleTrip(APIView):
-    '''
-    PsuedoCode"
-        .check input json ka all fields and check for NULL object passed and return appropriate error code.
-        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
-        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
-        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count   
-        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
-        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
-        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
-        .return this list of estimatesForCarTypes
-        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
-    '''
-    parser_classes = (JSONParser,)
-
-#INCOMPLETE but started!!
-class CompleteTrip(APIView):
+#FINISHED
+class CompleteTripAPI(APIView):
     # Might be incorrect as of now have to test it out after finishing scheduleTrip API
     parser_classes = (JSONParser,)
 
@@ -255,8 +255,9 @@ class CompleteTrip(APIView):
                 "feedback" not in request.data):
             return Response({
                 "completeTripTransactionStatus" : "TRIP_ID_NOT_FOUND",
-                "result" : "failure",
-                "message" : "Invalid data sent",
+                "trip" : "",
+                "result" : "input failure",
+                "message" : "Invalid data sent"
             })
         #checking if geoLocation is of valid geolocation datatype    
         else:
@@ -266,8 +267,17 @@ class CompleteTrip(APIView):
             serializer = GeoLocationSerializer(data=inputJSON)
             if not serializer.is_valid():
                 return Response({
-                "result" : "failure",
-                "message" : "input JSON is not of geoLocation type",
+                "completeTripTransactionStatus" : "",
+                "trip" : "",
+                "result" : "input failure",
+                "message" : "finishLocation is not of geoLocation type"
+                })
+            if request.data["rating"]>5.0 or request.data["rating"]<0.0 or not isinstance(request.data["rating"], float):
+                return Response({
+                "completeTripTransactionStatus" : "",
+                "trip" : "",
+                "result" : "input failure",
+                "message" : "rating should be within 0 and 5 and must be of type float"
                 })
         try:
             tripEntry = TripTable.objects.get(tripId=request.data["tripId"])
@@ -276,11 +286,22 @@ class CompleteTrip(APIView):
             # check this
             return Response({
                 "completeTripTransactionStatus" : "TRIP_ID_NOT_FOUND",
-                "message" : "Trip doesn't exist",
+                "trip" : "",
+                "result" : "database has no trip object",
+                "message" : "Trip doesn't exist"
             })
         
         tripEntry.endTimeInEpochs = int(time.mktime(datetime.datetime.now().timetuple()))
-        tripEntry.tripStatus = "TRIP_STATUS_COMPLETED"
+
+        if tripEntry.tripStatus == "TRIP_STATUS_SCHEDULED":#2
+            tripEntry.tripStatus = "TRIP_STATUS_COMPLETED"#4
+        else:
+            return Response({
+            "completeTripTransactionStatus" : "",
+            "trip" : "",
+            "result" : "TRIP Status problems",
+            "message" : "Cant complete a trip which wasnt scheduled before"
+            })
         tripEntry.paymentMode = request.data["paymentMode"]
         if (tripEntry.destinationLocation.latitude != request.data["finishLocation"]["latitude"] or
                 tripEntry.destinationLocation.longitude != request.data["finishLocation"]["longitude"]):
@@ -296,8 +317,9 @@ class CompleteTrip(APIView):
         except CarStatusTable.DoesNotExist:
             return Response({
                 "completeTripTransactionStatus" : "DATABASE_ERROR",
-                "result" : "failure",
-                "message" : "Oops",
+                "trip" : "",
+                "result" : "failure in making carstatus to available",
+                "message" : "couldnt save the carstatus"
             })
         #should ideally verify if car was actually on trip
         carEntry.carAvailability = "CAR_AVAILABLE"
@@ -309,10 +331,11 @@ class CompleteTrip(APIView):
         except DriverDetailsTable.DoesNotExist:
             return Response({
                 "completeTripTransactionStatus" : "DATABASE_ERROR",
-                "result" : "failure",
-                "message" : "Oops",
+                "trip" : "",
+                "result" : "no such driver exists",
+                "message" : "no such driver exists",
             })
-        driverEntry.avg_rating = (driverEntry.avg_rating + request.data["rating"]) / 2 # ???
+        driverEntry.avg_rating = (driverEntry.avg_rating + request.data["rating"]) / 2 # bad way to take average but its okay!
         driverEntry.save()
 
         tripObject = Trip(tripEntry.tripId, tripEntry.carId.carId, driverEntry.driverId, tripEntry.customerId.customerId, tripEntry.sourceLocation,
@@ -321,5 +344,36 @@ class CompleteTrip(APIView):
 
         result = CompleteTripTransactionResult(2, tripObject)
         serializer = CompleteTripTransactionResultSerializer(result)
-        
         return Response(serializer.data)
+
+#To be done
+class FareEstimateAPI(APIView):
+    '''
+    Pseudocode:
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
+        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
+        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count )  
+        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
+        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
+        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
+        .return this list of estimatesForCarTypes
+        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
+    '''
+    parser_classes = (JSONParser,)
+
+#to be done
+class ScheduleTripAPI(APIView):
+    '''
+    PsuedoCode"
+        .check input json ka all fields and check for NULL object passed and return appropriate error code.
+        .use datatypes.loction.GeoUtils.getDistanceBetweenLocationInKms to get the distance between source and destination Location.
+        .create a List<estimatesForCarType DT> for each type of car:ie hatch_back,sedan etc
+        .use the customerId to go to CustomerDetails table and get the streakfor past7 days let it be k.(Use the Trip table to directly write a query to get the count   
+        .if k > GlobalConstants.threshold(not yet created!) then assign a discount of say x%
+        .for each estimatesForCarTypeDT assign the tripPrice as the distance*perkmcost for that carType
+        .for each estimatesForCarTypeDT assign the discountedTripPrice as tripPrice(1-(x/100))
+        .return this list of estimatesForCarTypes
+        .Note : for the perkmcost of each cartype have a dictionary<cartype,perkmcost> in global constants !(to be created)
+    '''
+    parser_classes = (JSONParser,)

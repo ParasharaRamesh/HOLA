@@ -2,12 +2,11 @@ import os
 import enum
 import sys
 curr_path=os.path.dirname(__file__)
-# print("currpath is ",curr_path)
-#lib_path = os.path.abspath(os.path.join(curr_path, '..','..'))
+# print("currpath in trip is ",curr_path)
+lib_path = os.path.abspath(os.path.join(curr_path, '..'))
 # print("in trip lib path is ",lib_path)
-#sys.path.append(lib_path)
+sys.path.append(lib_path)
 from location.GeoLocation import GeoLocation
-
 
 
 class PaymentMode(enum.Enum):
@@ -29,8 +28,6 @@ class Trip:
         self._carId=carId#string
         self._driverId=driverId#string
         self._customerId=customerId#string
-        self._feedback=feedback#string
-        # print("srcLoc",type(sourceLocation),isinstance(sourceLocation,GeoLocation.GeoLocation))
         if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
         else:
@@ -61,10 +58,14 @@ class Trip:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
 
-        if isinstance(rating, float) and rating > 1 and rating < 5:
+
+        # print("INSIDE TRIP KA INIT AND RATING IS..",rating)
+        
+        if isinstance(rating, float) and rating >= 0.0 and rating <= 5.0:
             self._rating = rating
         else:
             Exception("rating must be a float value!")
+        self._feedback=feedback#string
 
     def __str__(self):
         return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))

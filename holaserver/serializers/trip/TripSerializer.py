@@ -8,7 +8,6 @@ from GeoLocationSerializer import GeoLocationSerializer
 
 
 
-
 class TripSerializer(serializers.Serializer):
     tripId = serializers.CharField(max_length=100)
     carId = serializers.CharField(max_length=100)
