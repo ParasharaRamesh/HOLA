@@ -8,6 +8,7 @@ from rest_framework.response import Response#,status
 from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
 import datetime
+import time
 
 from .models import *
 
@@ -249,6 +250,8 @@ class CompleteTrip(APIView):
     def put(self, request, format=None):
         if ("tripId" not in request.data or not isinstance(request.data["tripId"], int) or
                 "finishLocation" not in request.data or
+                "latitude" not in request.data["finishLocation"] or
+                "longitude" not in request.data["finishLocation"] or
                 "paymentMode" not in request.data or
                 "rating" not in request.data or
                 "feedback" not in request.data):
@@ -261,16 +264,19 @@ class CompleteTrip(APIView):
             tripEntry = TripTable.objects.get(tripId=request.data["tripId"])
         except TripTable.DoesNotExist:
             #tripObject = CompleteTripTransactionResult("TRIP_ID_NOT_FOUND",)
+            # check this
             return Response({
-                "result" : "failure",
+                "completeTripTransactionStatus" : "TRIP_ID_NOT_FOUND",
                 "message" : "Trip doesn't exist",
             })
         
-        tripEntry.endTimeInEpochs = "123" #datetime.datetime.utcnow()
+        tripEntry.endTimeInEpochs = int(time.mktime(datetime.datetime.now().timetuple()))
         tripEntry.tripStatus = "TRIP_STATUS_COMPLETED"
         tripEntry.paymentMode = request.data["paymentMode"]
-        #if tripEntry.destinationLocation != request.data["finishLocation"]
-        #   tripEntry.destinationLocation = request.data["finishLocation"]
+        if (tripEntry.destinationLocation.latitude != request.data["finishLocation"]["latitude"] or
+                tripEntry.destinationLocation.longitude != request.data["finishLocation"]["longitude"]):
+            tripEntry.destinationLocation.latitude = request.data["finishLocation"]["latitude"]
+            tripEntry.destinationLocation.longitude = request.data["finishLocation"]["longitude"]
         tripEntry.save()
 
         #make car status available
@@ -278,6 +284,7 @@ class CompleteTrip(APIView):
             carEntry = CarStatusTable.objects.get(carId=tripEntry.carId.carId)
         except CarStatusTable.DoesNotExist:
             return Response({
+                "completeTripTransactionStatus" : "DATABASE_ERROR",
                 "result" : "failure",
                 "message" : "Oops",
             })
@@ -290,13 +297,18 @@ class CompleteTrip(APIView):
             driverEntry = DriverDetailsTable.objects.get(carId=tripEntry.carId.carId)
         except DriverDetailsTable.DoesNotExist:
             return Response({
+                "completeTripTransactionStatus" : "DATABASE_ERROR",
                 "result" : "failure",
                 "message" : "Oops",
             })
         driverEntry.avg_rating = (driverEntry.avg_rating + request.data["rating"]) / 2 # ???
         driverEntry.save()
 
-        result = CompleteTripTransactionResult("SUCCESS", tripEntry)
+        tripObject = Trip(tripEntry.tripId, tripEntry.carId, tripEntry.customerId, tripEntry.sourceLocation,
+                        tripEntry.destinationLocation, tripEntry.startTimeInEpochs, tripEntry.endTimeInEpochs,
+                        tripEntry.tripPrice, 4, tripEntry.paymentMode)
+
+        result = CompleteTripTransactionResult(2, tripObject)
         serializer = CompleteTripTransactionResultSerializer(result)
         
         return Response(serializer.data)
