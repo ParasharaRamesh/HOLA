@@ -24,11 +24,12 @@ class TripStatus(enum.Enum):
     TRIP_STATUS_CANCELLED=5#this is used
 
 class Trip:
-    def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode):
+    def __init__(self,tripId,carId,driverId,customerId,sourceLocation,destinationLocation,startTimeInEpochs,endTimeInEpochs,tripPrice,tripStatus,paymentMode,rating,feedback):
         self._tripId=tripId#string
         self._carId=carId#string
         self._driverId=driverId#string
         self._customerId=customerId#string
+        self._feedback=feedback#string
         # print("srcLoc",type(sourceLocation),isinstance(sourceLocation,GeoLocation.GeoLocation))
         if isinstance(sourceLocation,GeoLocation) == True:
             self._sourceLocation=sourceLocation
@@ -59,6 +60,11 @@ class Trip:
         if paymentMode<1 or paymentMode>4:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
+
+        if isinstance(rating, float) and rating > 1 and rating < 5:
+            self._rating = rating
+        else:
+            Exception("rating must be a float value!")
 
     def __str__(self):
         return '%s(%s)' % (type(self).__name__,', '.join('%s=%s' % item for item in vars(self).items()))
@@ -170,4 +176,21 @@ class Trip:
             Exception("paymentMode must be between 1 and 4")
         self._paymentMode=str(PaymentMode(paymentMode))[12:]
 
- 
+    @property
+    def rating(self):
+        return self._rating
+
+    @rating.setter
+    def rating(self,rating):
+        if type(rating)==float and rating > 1 and rating < 5:
+            self._rating=rating#float
+        else:
+            Exception("rating must be a float value!")
+
+    @property
+    def feedback(self):
+        return self._feedback
+    
+    @feedback.setter
+    def feedback(self,feedback):
+        self._feedback=feedback

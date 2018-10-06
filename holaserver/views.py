@@ -250,8 +250,6 @@ class CompleteTrip(APIView):
     def put(self, request, format=None):
         if ("tripId" not in request.data or not isinstance(request.data["tripId"], int) or
                 "finishLocation" not in request.data or
-                "latitude" not in request.data["finishLocation"] or
-                "longitude" not in request.data["finishLocation"] or
                 "paymentMode" not in request.data or
                 "rating" not in request.data or
                 "feedback" not in request.data):
@@ -260,7 +258,17 @@ class CompleteTrip(APIView):
                 "result" : "failure",
                 "message" : "Invalid data sent",
             })
-
+        #checking if geoLocation is of valid geolocation datatype    
+        else:
+            inputJSONcontent = JSONRenderer().render(request.data["finishLocation"])
+            stream=BytesIO(inputJSONcontent)
+            inputJSON=JSONParser().parse(stream)
+            serializer = GeoLocationSerializer(data=inputJSON)
+            if not serializer.is_valid():
+                return Response({
+                "result" : "failure",
+                "message" : "input JSON is not of geoLocation type",
+                })
         try:
             tripEntry = TripTable.objects.get(tripId=request.data["tripId"])
         except TripTable.DoesNotExist:
@@ -278,6 +286,8 @@ class CompleteTrip(APIView):
                 tripEntry.destinationLocation.longitude != request.data["finishLocation"]["longitude"]):
             tripEntry.destinationLocation.latitude = request.data["finishLocation"]["latitude"]
             tripEntry.destinationLocation.longitude = request.data["finishLocation"]["longitude"]
+        tripEntry.rating = request.data["rating"]
+        tripEntry.feedback = request.data["feedback"]
         tripEntry.save()
 
         #make car status available
@@ -307,7 +317,7 @@ class CompleteTrip(APIView):
 
         tripObject = Trip(tripEntry.tripId, tripEntry.carId.carId, driverEntry.driverId, tripEntry.customerId.customerId, tripEntry.sourceLocation,
                         tripEntry.destinationLocation, tripEntry.startTimeInEpochs, tripEntry.endTimeInEpochs,
-                        tripEntry.tripPrice, 4, tripEntry.paymentMode)
+                        tripEntry.tripPrice, 4, tripEntry.paymentMode, tripEntry.rating, tripEntry.feedback)
 
         result = CompleteTripTransactionResult(2, tripObject)
         serializer = CompleteTripTransactionResultSerializer(result)

@@ -21,5 +21,7 @@ class TripSerializer(serializers.Serializer):
     tripPrice = serializers.FloatField()
     tripStatus = serializers.CharField(max_length=100)
     paymentMode = serializers.CharField(max_length=100)
+    rating = serializers.FloatField()
+    feedback = serializers.CharField(max_length=100)
 
 

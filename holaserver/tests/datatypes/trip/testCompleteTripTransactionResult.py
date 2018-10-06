@@ -14,14 +14,15 @@ import json
 import os
 import sys
 
+from trip.CompleteTripTransactionResult import CompleteTripTransactionResult
+from trip.Trip import Trip
+from location.GeoLocation import GeoLocation
+
 
 curr_path=os.path.dirname(__file__)
 lib_path =os.path.abspath(os.path.join(curr_path,'..','..','..'))
 sys.path.append(lib_path)
 
-from datatypes.trip.CompleteTripTransactionResult import CompleteTripTransactionResult
-from datatypes.trip.Trip import Trip
-from datatypes.location.GeoLocation import GeoLocation
 from serializers.trip.CompleteTripTransactionResultSerializer import CompleteTripTransactionResultSerializer
 
 
@@ -31,12 +32,12 @@ class CompleteTripTransactionResultTestCase(TestCase):
         expectedJSON="{\"completeTripTransactionStatus\": \"UNKNOWN\", \"trip\": {\"tripId\": \"TRIP_ID_1\", \"carId\": \"CAR_ID_1\", \"driverId\": \"DRIVER_ID_1\", \"customerId\": \"CUSTOMER_ID_1\", \
 \"sourceLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \"destinationLocation\": {\"latitude\": 123.1, \"longitude\": 234.1}, \
 \"startTimeInEpochs\": 123123, \"endTimeInEpochs\": 423234, \"tripPrice\": 123.13, \
-\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\"}}"#4
+\"tripStatus\": \"TRIP_STATUS_COMPLETED\", \"paymentMode\": \"PAYTM_PAYMENT\", \"rating\": 4.8, \"feedback\": \"nice\"}}"#4
 
         sourceLocation = GeoLocation(123.1,234.1)
         destinationLocation = GeoLocation(123.1,234.1)
 
-        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4)
+        trip=Trip("TRIP_ID_1","CAR_ID_1","DRIVER_ID_1","CUSTOMER_ID_1",sourceLocation,destinationLocation,123123,423234,123.13,4,4,4.8,"nice")
 
         completetripres=CompleteTripTransactionResult(1,trip)
         # completetripres.completeTripTransactionStatus=1
@@ -58,7 +59,7 @@ class CompleteTripTransactionResultTestCase(TestCase):
         inputJSONdict={'completeTripTransactionStatus':'UNKNOWN','trip':{'tripId': 'TRIP_ID_1', 'carId': 'CAR_ID_1', 'driverId':'DRIVER_ID_1','customerId':'CUSTOMER_ID_1',\
                         'sourceLocation':{'latitude':123.1,'longitude':234.1},'destinationLocation':{'latitude':123.1,'longitude':234.1},\
                         'startTimeInEpochs':123123,'endTimeInEpochs':423234,'tripPrice':123.13,\
-                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT'\
+                        'tripStatus':'TRIP_STATUS_COMPLETED', 'paymentMode':'PAYTM_PAYMENT', 'rating':4.8, 'feedback':'nice'\
                         }}
         #now for deserializing first do the following
         inputJSONcontent = JSONRenderer().render(inputJSONdict)
