@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+djangorestframework = "*"
+django = "*"
+django-extra-fields = "*"
+"psycopg2-binary" = "*"
+django-map-widgets = "*"
+django-rest-auth = "*"
+django-allauth = "*"
+django-cors-headers = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
